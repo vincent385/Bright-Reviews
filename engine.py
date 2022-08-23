@@ -6,7 +6,7 @@ from typing import Tuple
 
 """
 TODO
-    Design the UI and logic.
+    Rewire the engine to read/write true .bin files instead of whatever i was doing..
 """
 class AnimeRating:
     def __init__(self, title: str, thumbnail: Tuple[bytes, str], animation_quality: int | float, music: int | float,
@@ -45,42 +45,43 @@ class AnimeRating:
         if int(str(score).split('.')[1]) == 0: return int(score)
         return score
 
-    def save_as_binary(self):
+    def save_as_binary_file(self):
 
-        def fbin(__number: float) -> str:
+        def fhex(__number: float) -> str:
             """
-            Get the 64-bit binary representation of a floating point number.
+            Return the hexadecimal representation of a floating point number.
 
-            :__number: Float value to transform.
-            :return: 64-bit binary string.
+            ```python
+            >>> fhex(17.5)
+            '0x4031800000000000'
+            ```
             """
-            [t] = struct.unpack(">Q", struct.pack(">d", __number))
-            return f'{t:064b}'
+            return hex(struct.unpack('<Q', struct.pack('<d', __number))[0])
 
-        def abin(__text: str) -> str:
+        def ahex(__text: str) -> str:
             """
-            Convert a string containing ascii characters to an unseparated binary string.
+            Return the hexadecimal representation of an ascii string. There is no 0x prefix for each individual byte.
 
-            :__text: String to transform.
-            :return: Unseparated binary string.
+            ```python
+            >>> ahex("A quick brown fox")
+            '4120717569636b2062726f776e20666f78'
+            ```
             """
-            binary = ""
+            hex_str = ""
             for char in __text:
-                raw = bin(ord(char)).replace("0b", '')
-                while len(raw) < 8:
-                    raw = '0' + raw
-                binary += raw
-            return binary
+                hex_str += hex(ord(char))[2:]
+            return hex_str
 
         with open(os.path.join("reviews", f"{self.title}.bin"), "wb") as f:
-            f.write(abin(self.thumbnail[0].decode()).encode())
+            # raw = bytes.fromhex(ahex(my_string))
+            f.write(ahex(self.thumbnail[0].decode()).encode())
             f.write('\n'.encode())
-            f.write(abin(self.thumbnail[1]).encode())
+            f.write(ahex(self.thumbnail[1]).encode())
             f.write('\n'.encode())
 
             for value in self.scores:
                 if type(value) == int: f.write(bin(value).replace("0b", '').encode())
-                else: f.write(fbin(value).encode())
+                else: f.write(fhex(value).encode())
                 f.write("\n".encode())
 
 
