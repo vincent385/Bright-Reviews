@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame
+from buttons import ImageButton
 from settings import *
 
 
@@ -14,12 +15,13 @@ class Client:
         self.background = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_buttons(self):
-        NotImplemented
+        b1_img = pygame.image.load(os.path.join("assets", "buttons", "b1.png"))
+        ImageButton(self.display_surface, b1_img, (367, 526), None).draw(self.events)
 
     def run(self):
         while True:
-            events = pygame.event.get()
-            for event in events:
+            self.events = pygame.event.get()
+            for event in self.events:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
