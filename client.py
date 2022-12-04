@@ -16,7 +16,18 @@ class Client:
 
     def draw_buttons(self):
         b1_img = pygame.image.load(os.path.join("assets", "buttons", "b1.png"))
+        b2_img = pygame.image.load(os.path.join("assets", "buttons", "b2.png"))
+        b3_img = pygame.image.load(os.path.join("assets", "buttons", "b3.png")) 
+        b4_img = pygame.image.load(os.path.join("assets", "buttons", "b4.png")) 
+        b5_img = pygame.image.load(os.path.join("assets", "buttons", "b5.png")) 
+        b6_img = pygame.image.load(os.path.join("assets", "buttons", "b6.png")) 
+
         ImageButton(self.display_surface, b1_img, (367, 526), None).draw(self.events)
+        ImageButton(self.display_surface, b2_img, (606, 526), None).draw(self.events)
+        ImageButton(self.display_surface, b3_img, (844, 526), None).draw(self.events)
+        ImageButton(self.display_surface, b4_img, (367, 643), None).draw(self.events)
+        ImageButton(self.display_surface, b5_img, (606, 643), None).draw(self.events)
+        ImageButton(self.display_surface, b6_img, (844, 643), None).draw(self.events)
 
     def run(self):
         while True:
