@@ -1,5 +1,6 @@
 import os
 import struct
+from base64 import b64decode
 from typing import Tuple
 
 
@@ -38,7 +39,7 @@ class AnimeRating:
             total += value
         score = (total / 80) * 10
         if int(str(score).split('.')[1]) == 0: return int(score)
-        return score
+        return round(score, 2)
 
     def save_as_binary_file(self):
 
@@ -55,15 +56,15 @@ class AnimeRating:
 
         null_byte = b'\xff'
         with open(os.path.join("reviews", f"{self.title}.bin"), "wb") as f:
-            f.write(self.title.encode())
-            f.write(null_byte)
             f.write(self.thumbnail[1].encode())
             f.write(null_byte)
-            f.write(self.thumbnail[0])
-            f.write(null_byte * 2)
+            f.write(b64decode(self.thumbnail[0]))
+            f.write(null_byte * 4)
+            f.write(int.to_bytes(len(self.scores), 1, 'big'))
+            f.write(null_byte)
 
             for value in self.scores:
-                f.write(fhex(value).encode())
+                f.write(bytes.fromhex(fhex(value)))
                 f.write(b"\xff")
 
 
