@@ -10,25 +10,30 @@ class Decoder:
     def __init__(self, file_contents: bytes):
         self.data = BytesIO(file_contents)
         self.offset = 0
-        self.__thumbnail_fmt = self.read_null_terminated_string()
+        tnfmt_len = self.read_null_terminated_int_lt16()
+        self.offset += 2
+        self.__thumbnail_fmt = self.read_fixed_length_string(tnfmt_len)
+        self.offset -= tnfmt_len * 2 + 2
         self.__thumbnail_img = self.read_and_b64encode_img()
         number_of_scores = self.read_null_terminated_int_lt16()
         self.__scores = [self.read_null_terminated_double() for _ in range(number_of_scores)]
+
+    def read_fixed_length_string(self, length):
+        string = ""
+        for _ in range(length):
+            self.data.seek(self.offset)
+            current_byte = bytes.fromhex(self.data.read(2).decode())
+            self.offset += 2
+            string += current_byte.decode("utf-8")
+        return string
 
     def read_null_terminated_string(self):
         string = ""
         current_byte = b''
         while current_byte != b'\xff':
-            # decode current byte with utf-8 and append character to the result string
             string += current_byte.decode("utf-8")
-
-            # seek the current offset
             self.data.seek(self.offset)
-
-            # read 1 byte from current offset
             current_byte = bytes.fromhex(self.data.read(2).decode())
-
-            # update the current offset
             self.offset += 2
         return string
 
@@ -68,19 +73,10 @@ class Decoder:
         current_byte = b''
         buf4 = b''
         while buf4 != b'\xff\xff\xff\xff':
-            # append current byte to the image bytes
             img_bytes += current_byte
-
-            # seek the current offset
             self.data.seek(self.offset)
-
-            # read a byte from current offset
             current_byte = bytes.fromhex(self.data.read(2).decode())
-
-            # update the current offset
             self.offset += 2
-
-            # buffer to check for a word containing only null bytes
             if len(buf4) < 4:
                 buf4 += current_byte
             else:

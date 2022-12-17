@@ -56,7 +56,7 @@ class AnimeRating:
 
         null_byte = b'\xff'
         with open(os.path.join("reviews", f"{self.title}.bin"), "wb") as f:
-            f.write(self.thumbnail[1].encode())
+            f.write(int.to_bytes(len(self.thumbnail[1]), 1, 'big'))
             f.write(null_byte)
             f.write(b64decode(self.thumbnail[0]))
             f.write(null_byte * 4)
